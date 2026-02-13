@@ -114,10 +114,10 @@
     .bottom-buttons {
       position: fixed; bottom: 20px; left: 0; width: 100%;
       display: flex; justify-content: center; gap: 20px;
-      z-index: 30; pointer-events: none; /* container doesn't block, buttons inside do */
+      z-index: 30; pointer-events: none;
     }
     .bottom-buttons .btn {
-      pointer-events: auto; /* buttons clickable */
+      pointer-events: auto;
       border: none; border-radius: 50px; font-family: 'Poppins', sans-serif; font-weight: 600;
       cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); outline: none;
       font-size: clamp(14px, 4vw, 18px);
@@ -142,13 +142,16 @@
       padding: clamp(8px, 2.5vw, 12px) clamp(16px, 5vw, 26px);
       transform: scale(1);
       min-width: 70px; text-align: center;
+      border-radius: 50px; /* rounded edges */
+      border: none;
+      font-family: 'Poppins', sans-serif; font-weight: 600;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); outline: none;
       transition: left 0.08s linear, top 0.08s linear, transform 0.2s ease;
       will-change: transform, left, top;
-      position: fixed; /* will be moved via JS */
+      position: fixed;
       z-index: 31;
     }
-    /* Initially buttons hidden */
-    .bottom-buttons.hidden, .btn-no.hidden {
+    .btn-no.hidden, .bottom-buttons.hidden {
       display: none;
     }
 
@@ -162,7 +165,7 @@
     .swipe-arrow { font-size:1.4em; animation:swipeArrow 1.5s ease-in-out infinite; display:inline-block; }
     @keyframes swipeArrow { 0%,100%{transform:translateX(0);} 50%{transform:translateX(8px);} }
 
-    /* === CELEBRATION OVERLAY (unchanged) === */
+    /* === CELEBRATION OVERLAY === */
     .celebration-overlay {
       position: fixed; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column;
       align-items:center; justify-content:center; padding:20px; z-index:20; pointer-events:none;
@@ -175,8 +178,17 @@
     .bouquet-flower { display:inline-flex; flex-direction:column; align-items:center; animation:flowerPop 0.6s ease forwards; opacity:0; }
     .bouquet-flower .flower-icon { font-size:clamp(32px,8vw,48px); }
     @keyframes flowerPop { from { opacity:0; transform:scale(0) rotate(-20deg); } to { opacity:1; transform:scale(1) rotate(0); } }
-    .celebration-poem { font-family:'Caveat',cursive; font-size:clamp(18px,5vw,28px); color:#5d3a1a; text-align:center; white-space:pre-line; max-width:90vw; margin-top:10px; line-height:1.5; max-height:40vh; overflow-y:auto; padding:0 10px; scrollbar-width:none; }
-    .celebration-poem::-webkit-scrollbar { display:none; }
+    .celebration-poem {
+      font-family: 'Caveat', cursive; font-size: clamp(18px, 4.5vw, 24px);
+      color: #5d3a1a; text-align: center; white-space: pre-line;
+      max-width: 90vw; margin-top: 10px; line-height: 1.5;
+      max-height: 60vh; /* increased to show more content */
+      overflow-y: auto;  /* scroll if needed, with visible bar */
+      padding: 0 15px;
+    }
+    /* scrollbar styling (optional) */
+    .celebration-poem::-webkit-scrollbar { width: 6px; }
+    .celebration-poem::-webkit-scrollbar-thumb { background: #c2185b; border-radius: 10px; }
     @keyframes celebratePulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
     .sparkle-overlay { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
     .sparkle-overlay .sparkle { position:absolute; width:4px; height:4px; background:#fff; border-radius:50%; animation:twinkle 2s ease-in-out infinite; }
@@ -201,7 +213,7 @@
         <div class="wax-seal"><div class="wax-seal-heart"></div><span class="wax-seal-initial">S</span></div>
         <div class="letter-opener"><div class="opener-handle"></div><div class="opener-blade"></div></div>
 
-        <!-- LETTER with question and dynamic message only (no buttons) -->
+        <!-- LETTER with question and dynamic message only -->
         <div class="letter-card letter-question" id="letterQuestion">
           <div class="letter-question-inner">
             <div class="letter-q-text">Will you be<br>Syed Abubaker Ahmed's<br>Valentine for 2026<br>and forever? 💕</div>
@@ -216,7 +228,6 @@
   <!-- BOTTOM BUTTONS (initially hidden) -->
   <div class="bottom-buttons hidden" id="bottomButtons">
     <button class="btn btn-yes" id="btnYes">💖 YES</button>
-    <!-- NO button will be moved absolutely, so it's outside this container but we keep reference -->
   </div>
   <button class="btn-no hidden" id="btnNo">💔 NO</button>
 
@@ -299,22 +310,17 @@
       function positionNoButtonAtBottom() {
         btnNo.classList.remove('hidden');
         btnNo.style.position = 'fixed';
-        // Place it to the right of YES button: we need to know YES button's position
-        // We'll set left relative to viewport, approx: center + gap
-        const yesRect = btnYes.getBoundingClientRect();
-        const gap = 20; // match CSS gap
-        // Desired: YES at center minus half its width minus half gap? Simpler: put NO at bottom center but we already have YES at bottom center? Actually bottomButtons container centers both. We want NO to start at bottom next to YES.
-        // The container uses flex, so YES is at its natural position. We'll position NO absolutely relative to viewport to align next to YES.
-        // Calculate: center of screen: window.innerWidth/2. YES width known. We want NO to be placed such that its left edge is at yesRect.right + gap.
-        // But YES is centered via flex, so we can compute its position.
-        // However, after first click, we move NO randomly. So initial position: just set it near YES.
-        // Let's compute: YES is centered in the flex container. Its left = (window.innerWidth/2) - (yesRect.width/2). So NO left = yesRect.right + gap.
-        const yesLeft = (window.innerWidth/2) - (yesRect.width/2);
-        const noLeft = yesLeft + yesRect.width + gap;
-        btnNo.style.left = noLeft + 'px';
-        btnNo.style.top = 'auto';
-        btnNo.style.bottom = '20px'; // same as bottomButtons
-        btnNo.style.transform = `scale(${noScale})`;
+        // Wait for YES button to be rendered
+        setTimeout(() => {
+          const yesRect = btnYes.getBoundingClientRect();
+          const gap = 20;
+          const yesLeft = (window.innerWidth/2) - (yesRect.width/2);
+          const noLeft = yesLeft + yesRect.width + gap;
+          btnNo.style.left = noLeft + 'px';
+          btnNo.style.top = 'auto';
+          btnNo.style.bottom = '20px';
+          btnNo.style.transform = `scale(${noScale})`;
+        }, 50);
       }
 
       // Helper: move NO button randomly
@@ -353,18 +359,13 @@
           noScale = 1.0;
           btnYes.style.transform = `scale(${yesScale})`;
           btnNo.style.transform = `scale(${noScale})`;
-          dynamicMessage.innerHTML = ''; // clear
+          dynamicMessage.innerHTML = '';
           noClickCount = 0;
 
-          // Hide any previous visibility
           bottomButtons.classList.remove('hidden');
           btnNo.classList.remove('hidden');
           
-          // Position NO button at bottom next to YES
-          // Ensure YES is visible first
-          setTimeout(() => {
-            positionNoButtonAtBottom();
-          }, 50); // small delay to ensure layout
+          positionNoButtonAtBottom();
         }, 2000);
       }
 
@@ -389,7 +390,6 @@
         }
         
         if (noClickCount >= noMessagesSeq.length) {
-          // Final click: hide NO, supersize YES
           btnNo.style.display = 'none';
           yesScale = 3.0;
           btnYes.style.transform = `scale(${yesScale})`;
@@ -399,7 +399,6 @@
           return;
         }
         
-        // Grow YES, shrink NO
         yesScale = Math.min(yesScale + 0.2, 2.8);
         noScale = Math.max(noScale - 0.15, 0.2);
         
@@ -407,8 +406,6 @@
         btnNo.style.transform = `scale(${noScale})`;
         
         pumpYesButton();
-        
-        // Move NO randomly
         moveNoButtonRandomly();
       }
 
