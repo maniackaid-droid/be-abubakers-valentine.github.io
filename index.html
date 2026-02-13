@@ -1,3 +1,6 @@
+Here is the updated HTML file. The poem is now embedded directly into the code, so it will display reliably without needing an external `poem.txt` file. The formatting with line breaks is preserved.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -421,7 +424,22 @@
         bottomButtons.classList.add('hidden');
         btnNo.classList.add('hidden');
 
-        loadPoemIntoOverlay();
+        // Set the poem directly (no fetch)
+        const poem = `My sweetheart my love my heart 💗
+How many more days like this will we stay apart 💔
+However many they may be I'll never forget the start 🙂‍↕️
+
+Few days from now we first talked 🤔
+If i had told you then you might've blocked 👀
+But fate will always keep our lives interlocked 🥰
+
+I asked you to be my valentine with nothing else to show 😔
+Just a little more and we will sit under the same lights glow 🕯
+You will forever be my only one, my snow ❄️
+
+(I need to write more for you I love you my love 🫂, lets have many happy days together mmmmmwaaaah💋)`;
+        celebrationPoem.textContent = poem;
+
         triggerCelebration();
       });
 
@@ -500,16 +518,8 @@
           sparkleOverlay.appendChild(s);
         }
       }
-
-      const fallbackPoem = "Every moment with you is a gift,\nEvery smile of yours, my heart does lift.\nIn this world so vast and wide,\nYou're forever my love, my pride.\n\n— With all my love, always and forever 💖";
-      function loadPoemIntoOverlay() {
-        fetch('poem.txt')
-          .then(r => r.ok ? r.text() : fallbackPoem)
-          .then(text => { celebrationPoem.textContent = text; })
-          .catch(() => { celebrationPoem.textContent = fallbackPoem; });
-      }
-      loadPoemIntoOverlay();
     })();
   </script>
 </body>
 </html>
+```
