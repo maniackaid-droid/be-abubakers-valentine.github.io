@@ -1055,26 +1055,18 @@
 
         // Add to DOM
         flowersBg.appendChild(flower);
-
-        // When animation ends, reset properties to loop organically
-        // We use 'animationiteration' if using infinite, but to randomize pos each time
-        // it's better to listen to end and restart. However, with infinite CSS,
-        // it just loops same path. To randomize path each loop, we need JS loop.
-        // Let's use the CSS infinite linear, but set huge duration and delays.
-        // Actually best way for random positions each time is to reset node.
-
-        // Simpler approach: CSS infinite is fine, but static track.
-        // To make "all around web page", let's use a long duration and random delays.
       });
     }
 
     function setRandomFlowerProperties(el) {
-      el.style.left = Math.random() * 95 + '%'; // 0-95% width
-      el.style.fontSize = (20 + Math.random() * 25) + 'px';
+      el.style.left = Math.random() * 90 + '%'; // Keep within bounds
+      // Larger on mobile
+      const size = window.innerWidth < 480 ? (24 + Math.random() * 20) : (20 + Math.random() * 25);
+      el.style.fontSize = size + 'px';
+
       // Randomize duration
-      const duration = 15 + Math.random() * 20; // 15-35s slow float
+      const duration = 15 + Math.random() * 20;
       el.style.animationDuration = duration + 's';
-      // Random negative delay so they appear to be already mid-flight
       el.style.animationDelay = -(Math.random() * duration) + 's';
     }
 
@@ -1095,7 +1087,6 @@
         isSwiping = true;
         envelopeWrapper.style.cursor = 'grabbing';
       } else if (currentState === 'celebration') {
-        // Swipe/pull to get poem letter
         swipeStartX = x;
         swipeStartY = y;
         isSwiping = true;
@@ -1111,9 +1102,9 @@
       const dy = y - swipeStartY;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (currentState === 'closed' && distance > 60) {
+      if (currentState === 'closed' && distance > 50) {
         openEnvelope();
-      } else if (currentState === 'celebration' && distance > 40) {
+      } else if (currentState === 'celebration' && distance > 30) {
         showPoemLetter();
       }
     }
@@ -1134,8 +1125,7 @@
       handleSwipeEnd(e.clientX, e.clientY);
     });
 
-    // Document-level listeners for celebration state
-    // (overlay blocks envelopeWrapper events)
+    // Document-level listeners
     document.addEventListener('mousedown', (e) => {
       if (currentState === 'celebration') {
         swipeStartX = e.clientX;
@@ -1165,167 +1155,143 @@
 
       // Stop float
       envelopeWrapper.style.animation = 'none';
-      // Hide swipe hint completely
       swipeHint.style.opacity = '0';
       swipeHint.style.display = 'none';
 
-      // Play a subtle paper/crack sound
       playOpenSound();
 
-      // Phase 1: Knife slides across
+      // Phase 1: Knife
       envelope.classList.add('phase-knife');
 
-      // Phase 2: Seal breaks
+      // Phase 2: Seal
       setTimeout(() => {
         envelope.classList.add('phase-seal-break');
       }, 600);
 
-      // Phase 3: Flap opens
+      // Phase 3: Flap
       setTimeout(() => {
         envelope.classList.add('phase-flap-open');
       }, 1300);
 
-      // Phase 4: Letter 1 pops OUT of envelope
+      // Phase 4: Letter pops out & Unfolds
       setTimeout(() => {
         envelope.classList.add('phase-letter-pop');
-        // Bring letter to front after it pops out
+
+        // Ensure z-index switch happens
         setTimeout(() => {
-          // Additional safety for z-index
-          letterQuestion.style.zIndex = '6';
-        }, 800);
+          letterQuestion.style.zIndex = '10';
+        }, 600);
+
         currentState = 'question';
-      }, 2200);
+      }, 2000); // Slightly earlier
     }
 
     /* ═══════════════════════════════════════════════
-       NO BUTTON LOGIC 😈❤️ (Evasive)
+       NO BUTTON LOGIC 😈❤️ (Pure Evasion)
+       "The no should move around the letter"
     ═══════════════════════════════════════════════ */
     const noMessages = [
-      "Wait, what?",
-      "Are you serious?",
-      "Too slow! 💨",
-      "Nope, try again!",
-      "You can't catch me! 🏃"
+      "Wait, what? 🏃",
+      "Cant catch me! 💨",
+      "Nope! try again",
+      "Too slow! 🐢",
+      "Seriouslly? 😂"
     ];
 
-    let noHoverCount = 0;
+    let noMoveCount = 0;
 
     function moveNoButton() {
-      // Calculate random position within viewport
-      // Keep generous padding so it doesn't go offscreen
-      const maxX = window.innerWidth - btnNo.offsetWidth - 20;
-      const maxY = window.innerHeight - btnNo.offsetHeight - 20;
+      // We want it to move AROUND the letter, not behind it.
+      // But simple random viewport logic with high z-index is safest.
 
-      const randomX = Math.max(10, Math.random() * maxX);
-      const randomY = Math.max(10, Math.random() * maxY);
-
-      // Apply fixed position class if not already there
+      // Ensure absolute
       if (!btnNo.classList.contains('absolute')) {
         btnNo.classList.add('absolute');
-        // Set initial position to current rect to prevent visual jump before moving?
-        // Actually just jump immediately
       }
+
+      // Viewport dimensions
+      const viewportW = window.innerWidth;
+      const viewportH = window.innerHeight;
+      const btnW = btnNo.offsetWidth || 80;
+      const btnH = btnNo.offsetHeight || 40;
+
+      // Random position (padding 20px)
+      const randomX = Math.max(20, Math.random() * (viewportW - btnW - 20));
+      const randomY = Math.max(20, Math.random() * (viewportH - btnH - 20));
 
       btnNo.style.left = randomX + 'px';
       btnNo.style.top = randomY + 'px';
 
-      // Optional: Change text occasionally
-      noHoverCount++;
-      if (noHoverCount < 6) {
-        dynamicMessage.textContent = noMessages[Math.floor(Math.random() * noMessages.length)];
-      } else {
-        dynamicMessage.textContent = "Just click YES already... 😏";
+      // Update message occasionally
+      noMoveCount++;
+      if (noMoveCount < 8 && noMoveCount % 2 === 0) {
+        const msg = noMessages[Math.floor(Math.random() * noMessages.length)];
+        dynamicMessage.textContent = msg;
       }
     }
 
-    // Desktop: Hover evasion
-    btnNo.addEventListener('mouseover', () => {
-      moveNoButton();
-    });
-
-    // Mobile: Touch evasion (touchstart triggers before click)
+    // Events for Evasion
+    btnNo.addEventListener('mouseover', moveNoButton);
     btnNo.addEventListener('touchstart', (e) => {
-      e.preventDefault(); // Stop click simulation
+      e.preventDefault(); // Stop click
       moveNoButton();
-    });
-
-    // Fallback click (in case they manage to click it)
+    }, { passive: false });
     btnNo.addEventListener('click', (e) => {
       e.preventDefault();
       moveNoButton();
-      // Don't count clicks for shrinking anymore, just evade
     });
 
     /* ═══════════════════════════════════════════════
-       YES BUTTON – Celebration + prompt for 2nd letter
+       YES BUTTON – Celebration
     ═══════════════════════════════════════════════ */
     btnYes.addEventListener('click', () => {
       if (currentState !== 'question') return;
       currentState = 'celebration';
 
-      // Remove the NO button entirely now
+      // Remove NO button
       btnNo.style.display = 'none';
 
-      // Celebration!
       triggerCelebration();
 
-      // After a beat, show the "pull next letter" hint
       setTimeout(() => {
         pullHint.classList.add('visible');
       }, 2500);
     });
 
     function triggerCelebration() {
-      // Show celebration overlay on top
       celebrationOverlay.classList.add('active');
-
-      // Build bouquet
       buildBouquet();
-
-      // Fire confetti
       fireConfetti();
-
-      // Play cheering sound
       playCelebrationSound();
-
-      // Show sparkles
       showSparkles();
 
-      // Change bg
       document.body.style.background =
         'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 25%, #f3e5f5 50%, #e8eaf6 75%, #fff9c4 100%)';
 
-      // Pre-load poem
       loadPoem();
     }
 
     /* ═══════════════════════════════════════════════
-       SHOW POEM LETTER (pulled from envelope)
+       SHOW POEM LETTER
     ═══════════════════════════════════════════════ */
     function showPoemLetter() {
       if (currentState !== 'celebration') return;
       currentState = 'poem';
 
       pullHint.classList.remove('visible');
-
-      // Fade out celebration overlay
       celebrationOverlay.style.opacity = '0';
       setTimeout(() => {
         celebrationOverlay.classList.remove('active');
-        celebrationOverlay.style.display = 'none'; // fully remove
+        celebrationOverlay.style.display = 'none';
       }, 800);
 
-      // Pop poem letter out of envelope
       envelope.classList.add('phase-letter2-pop');
     }
 
-    /* Also allow clicking the pull hint */
-    pullHint.addEventListener('click', () => {
-      showPoemLetter();
-    });
+    pullHint.addEventListener('click', showPoemLetter);
 
     /* ═══════════════════════════════════════════════
-       BUILD BOUQUET (9 flowers, no labels)
+       BUILD BOUQUET & CONFETTI & SOUNDS
     ═══════════════════════════════════════════════ */
     function buildBouquet() {
       const bouquet = document.getElementById('bouquet');
@@ -1338,7 +1304,6 @@
         f.innerHTML = `<span class="flower-icon">${emoji}</span>`;
         bouquet.appendChild(f);
       });
-      // Ribbon
       const ribbon = document.createElement('div');
       ribbon.textContent = '🎀';
       ribbon.style.fontSize = 'clamp(24px, 4vw, 36px)';
@@ -1346,15 +1311,11 @@
       bouquet.appendChild(ribbon);
     }
 
-    /* ═══════════════════════════════════════════════
-       CONFETTI 🎊
-    ═══════════════════════════════════════════════ */
     function fireConfetti() {
       const defaults = {
         spread: 360, ticks: 100, gravity: 0.5, decay: 0.94, startVelocity: 30,
         colors: ['#e91e63', '#f48fb1', '#ff80ab', '#ff4081', '#f50057', '#c2185b', '#fff', '#ffeb3b']
       };
-
       function burst() {
         confetti({
           ...defaults, particleCount: 40, scalar: 1.2,
@@ -1362,33 +1323,18 @@
           origin: { x: Math.random(), y: Math.random() * 0.4 }
         });
       }
-
       burst();
       setTimeout(burst, 250);
       setTimeout(burst, 500);
       setTimeout(burst, 1000);
       setTimeout(burst, 1500);
       setTimeout(burst, 2500);
-
-      setTimeout(() => {
-        confetti({
-          particleCount: 80, spread: 120,
-          origin: { y: 0.6 },
-          colors: ['#e91e63', '#f06292', '#f8bbd0', '#9c27b0', '#ffeb3b'],
-          shapes: ['circle'], scalar: 2, gravity: 0.8
-        });
-      }, 2000);
     }
 
-    /* ═══════════════════════════════════════════════
-       OPENING SOUND (paper/wax crack)
-    ═══════════════════════════════════════════════ */
     function playOpenSound() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const now = ctx.currentTime;
-
-        // Paper tearing / wax crack: short noise burst
         const bufLen = ctx.sampleRate * 0.4;
         const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
         const data = buf.getChannelData(0);
@@ -1407,13 +1353,10 @@
         src.connect(filter);
         filter.connect(gain);
         gain.connect(ctx.destination);
-        src.start(now + 0.5); // Sync with knife hitting seal
+        src.start(now + 0.5);
       } catch (e) { }
     }
 
-    /* ═══════════════════════════════════════════════
-       CELEBRATION SOUND 🎶 – Crowd cheering
-    ═══════════════════════════════════════════════ */
     function playCelebrationSound() {
       try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1534,15 +1477,7 @@
       "— With all my love, always and forever 💖";
 
     function loadPoem() {
-      fetch('poem.txt')
-        .then(r => {
-          if (!r.ok) throw new Error('Not found');
-          return r.text();
-        })
-        .then(text => { poemText.textContent = text; })
-        .catch(() => {
-          poemText.textContent = fallbackPoem;
-        });
+      fetch('poem.txt').then(r => r.ok ? r.text() : fallbackPoem).then(text => { poemText.textContent = text; }).catch(() => { poemText.textContent = fallbackPoem; });
     }
 
     // Pre-load the poem immediately so it's ready
