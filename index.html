@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>💖 Will You Be My Valentine? 💖</title>
-  <meta name="description" content="Romantic Valentine invitation – with a moving NO & growing YES.">
+  <meta name="description" content="Romantic Valentine invitation – Buttons outside letter, moving NO & growing YES.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;600;700&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
@@ -13,15 +13,9 @@
     /* === RESET & BASE === */
     *,
     *::before,
-    *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
-      width: 100%;
-      min-height: 100vh;
-      overflow-x: hidden;
+      width: 100%; min-height: 100vh; overflow-x: hidden;
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 30%, #f3e5f5 60%, #fff9c4 100%);
       color: #4a2040;
@@ -30,8 +24,7 @@
     }
     /* floating flowers (unchanged) */
     .flowers-bg {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       pointer-events: none; z-index: 0; overflow: hidden;
     }
     .flowers-bg .float-flower {
@@ -60,8 +53,7 @@
     }
     @keyframes floatEnvelope { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
     .envelope {
-      width: min(360px, 82vw);
-      height: calc(min(360px, 82vw) * 0.72);
+      width: min(360px, 82vw); height: calc(min(360px, 82vw) * 0.72);
       position: relative; perspective: 900px; filter: drop-shadow(0 8px 20px rgba(80,40,20,0.3));
       margin: 0 auto;
     }
@@ -81,7 +73,7 @@
     .opener-blade { width:100%; height:100%; background:linear-gradient(180deg,#e8e8e8,#aaa,#ccc); clip-path:polygon(0 50%, 85% 0, 100% 50%, 85% 100%); }
     .opener-handle { position:absolute; left:-20px; top:-5px; width:22px; height:14px; background:linear-gradient(180deg,#8d6e63,#5d4037); border-radius:3px 0 0 3px; }
 
-    /* === LETTER (question) – enlarged for neat text === */
+    /* === LETTER (question only, no buttons inside) === */
     .letter-card {
       position: absolute; left: 5%; width: 90%; height: 98%;
       bottom: 0; border-radius: 4px 4px 0 0; z-index: 2; opacity: 0; pointer-events: none;
@@ -101,24 +93,41 @@
     .letter-question { background: linear-gradient(180deg, #fffef5, #fdf8ec, #faf3e0); }
     .letter-question-inner {
       width: 100%; height: 100%;
-      padding: 14px 8px 8px 8px;
-      display: flex; flex-direction: column; align-items: center; justify-content: space-evenly;
+      padding: 20px 10px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       background: repeating-linear-gradient(transparent 0px, transparent 28px, rgba(180,160,130,0.15) 28px, rgba(180,160,130,0.15) 29px);
     }
     .letter-q-text {
       font-family: 'Caveat', cursive;
-      font-size: clamp(15px, 4.5vw, 20px);
-      font-weight: 700; color: #5d3a1a; text-align: center; line-height: 1.4;
-      margin: 0 5px;
+      font-size: clamp(18px, 5vw, 24px);
+      font-weight: 700; color: #5d3a1a; text-align: center; line-height: 1.5;
+      margin-bottom: 20px;
     }
-    /* YES button stays inside letter */
-    .btn-yes {
-      background: linear-gradient(135deg, #e91e63, #f06292); color: white;
+    /* Dynamic message inside letter */
+    .letter-dynamic-msg {
+      font-family: 'Caveat', cursive; font-size: clamp(16px, 4.5vw, 22px);
+      color: #ad1457; min-height: 40px; text-align: center; margin-top: 10px;
+      font-weight: 600;
+    }
+
+    /* === BOTTOM BUTTONS (outside envelope, fixed) === */
+    .bottom-buttons {
+      position: fixed; bottom: 20px; left: 0; width: 100%;
+      display: flex; justify-content: center; gap: 20px;
+      z-index: 30; pointer-events: none; /* container doesn't block, buttons inside do */
+    }
+    .bottom-buttons .btn {
+      pointer-events: auto; /* buttons clickable */
       border: none; border-radius: 50px; font-family: 'Poppins', sans-serif; font-weight: 600;
       cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); outline: none;
-      font-size: clamp(14px, 4vw, 18px); padding: clamp(10px, 3vw, 14px) clamp(20px, 6vw, 36px);
-      transform: scale(1); transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-size: clamp(14px, 4vw, 18px);
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       will-change: transform;
+    }
+    .btn-yes {
+      background: linear-gradient(135deg, #e91e63, #f06292); color: white;
+      padding: clamp(10px, 3vw, 14px) clamp(20px, 6vw, 36px);
+      transform: scale(1);
     }
     .btn-yes.pump {
       animation: pump 0.3s ease-in-out;
@@ -128,26 +137,19 @@
       50% { transform: scale(calc(var(--yes-scale, 1) * 1.2)); }
       100% { transform: scale(var(--yes-scale, 1)); }
     }
-    /* Dynamic message inside letter */
-    .letter-dynamic-msg {
-      font-family: 'Caveat', cursive; font-size: clamp(13px, 4vw, 18px);
-      color: #ad1457; min-height: 28px; text-align: center; margin: 4px 0;
-    }
-
-    /* === MOVING NO BUTTON (independent, fixed) === */
-    .moving-no-btn {
-      position: fixed; /* will be placed with JS */
+    .btn-no {
       background: linear-gradient(135deg, #9e9e9e, #bdbdbd); color: white;
-      border: none; border-radius: 50px; font-family: 'Poppins', sans-serif; font-weight: 600;
-      cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); outline: none;
-      font-size: clamp(12px, 3.5vw, 15px); padding: clamp(8px, 2.5vw, 12px) clamp(16px, 5vw, 26px);
-      z-index: 9999; transform: scale(1); min-width: 70px; text-align: center;
+      padding: clamp(8px, 2.5vw, 12px) clamp(16px, 5vw, 26px);
+      transform: scale(1);
+      min-width: 70px; text-align: center;
       transition: left 0.08s linear, top 0.08s linear, transform 0.2s ease;
       will-change: transform, left, top;
-      display: none; /* hidden initially */
+      position: fixed; /* will be moved via JS */
+      z-index: 31;
     }
-    .moving-no-btn.visible {
-      display: block;
+    /* Initially buttons hidden */
+    .bottom-buttons.hidden, .btn-no.hidden {
+      display: none;
     }
 
     /* swipe hint */
@@ -182,9 +184,7 @@
 
     @media (max-width: 480px) {
       .envelope { width: 88vw; height: calc(88vw * 0.72); }
-      .letter-q-text { font-size: 17px; }
-      .moving-no-btn { min-width: 70px; padding: 10px 12px; font-size: 14px; }
-      .btn-yes { padding: 12px 20px; }
+      .letter-q-text { font-size: 20px; }
     }
   </style>
 </head>
@@ -201,23 +201,24 @@
         <div class="wax-seal"><div class="wax-seal-heart"></div><span class="wax-seal-initial">S</span></div>
         <div class="letter-opener"><div class="opener-handle"></div><div class="opener-blade"></div></div>
 
-        <!-- LETTER with YES button inside -->
+        <!-- LETTER with question and dynamic message only (no buttons) -->
         <div class="letter-card letter-question" id="letterQuestion">
           <div class="letter-question-inner">
             <div class="letter-q-text">Will you be<br>Syed Abubaker Ahmed's<br>Valentine for 2026<br>and forever? 💕</div>
-            <div class="letter-dynamic-msg" id="dynamicMessage">&nbsp;</div>
-            <div class="letter-q-buttons" style="display: flex; justify-content: center;">
-              <!-- YES button only -->
-              <button class="btn-yes" id="btnYes">💖 YES</button>
-            </div>
+            <div class="letter-dynamic-msg" id="dynamicMessage"></div>
           </div>
         </div>
       </div>
       <p class="swipe-hint" id="swipeHint">Swipe to open <span class="swipe-arrow">👉</span></p>
     </div>
-    <!-- MOVING NO BUTTON (outside envelope, initially hidden) -->
-    <button class="moving-no-btn" id="movingNoBtn">💔 NO</button>
   </div>
+
+  <!-- BOTTOM BUTTONS (initially hidden) -->
+  <div class="bottom-buttons hidden" id="bottomButtons">
+    <button class="btn btn-yes" id="btnYes">💖 YES</button>
+    <!-- NO button will be moved absolutely, so it's outside this container but we keep reference -->
+  </div>
+  <button class="btn-no hidden" id="btnNo">💔 NO</button>
 
   <!-- CELEBRATION OVERLAY -->
   <div class="celebration-overlay" id="celebrationOverlay">
@@ -236,7 +237,6 @@
       let yesScale = 1.0;
       let noScale = 1.0;
       
-      // Exact message sequence
       const noMessagesSeq = [
         "wrong answer try again",
         "WRONG!",
@@ -248,7 +248,8 @@
       const envelope = document.getElementById('envelope');
       const envelopeWrapper = document.getElementById('envelopeWrapper');
       const btnYes = document.getElementById('btnYes');
-      const movingNoBtn = document.getElementById('movingNoBtn');
+      const btnNo = document.getElementById('btnNo');
+      const bottomButtons = document.getElementById('bottomButtons');
       const dynamicMessage = document.getElementById('dynamicMessage');
       const sparkleOverlay = document.getElementById('sparkleOverlay');
       const celebrationOverlay = document.getElementById('celebrationOverlay');
@@ -256,7 +257,7 @@
       const swipeHint = document.getElementById('swipeHint');
       const bouquetDiv = document.getElementById('bouquet');
 
-      // floating flowers (unchanged)
+      // floating flowers
       const flowersBg = document.getElementById('flowersBg');
       const uniqueFlowers = ['🌷', '🌻', '🌹', '🌸', '🪻', '🌼', '💮', '🌺'];
       function initFloatingFlowers() {
@@ -275,7 +276,7 @@
       }
       initFloatingFlowers();
 
-      // === swipe detection (unchanged) ===
+      // swipe detection
       let swipeStartX = 0, swipeStartY = 0, isSwiping = false;
       function handleSwipeStart(x, y) {
         if (currentState === 'closed') { swipeStartX = x; swipeStartY = y; isSwiping = true; envelopeWrapper.style.cursor = 'grabbing'; }
@@ -294,33 +295,43 @@
       envelopeWrapper.addEventListener('mousedown', (e) => handleSwipeStart(e.clientX, e.clientY));
       document.addEventListener('mouseup', (e) => handleSwipeEnd(e.clientX, e.clientY));
 
-      // === helper: position No button at bottom center (fixed) ===
+      // Helper: position NO button at bottom center initially (next to YES)
       function positionNoButtonAtBottom() {
-        movingNoBtn.classList.add('visible');
-        // Use fixed positioning via inline styles (already fixed by class, but ensure)
-        movingNoBtn.style.position = 'fixed';
-        movingNoBtn.style.left = '50%';
-        movingNoBtn.style.transform = `translateX(-50%) scale(${noScale})`;
-        movingNoBtn.style.bottom = '20px';
-        movingNoBtn.style.top = 'auto';
+        btnNo.classList.remove('hidden');
+        btnNo.style.position = 'fixed';
+        // Place it to the right of YES button: we need to know YES button's position
+        // We'll set left relative to viewport, approx: center + gap
+        const yesRect = btnYes.getBoundingClientRect();
+        const gap = 20; // match CSS gap
+        // Desired: YES at center minus half its width minus half gap? Simpler: put NO at bottom center but we already have YES at bottom center? Actually bottomButtons container centers both. We want NO to start at bottom next to YES.
+        // The container uses flex, so YES is at its natural position. We'll position NO absolutely relative to viewport to align next to YES.
+        // Calculate: center of screen: window.innerWidth/2. YES width known. We want NO to be placed such that its left edge is at yesRect.right + gap.
+        // But YES is centered via flex, so we can compute its position.
+        // However, after first click, we move NO randomly. So initial position: just set it near YES.
+        // Let's compute: YES is centered in the flex container. Its left = (window.innerWidth/2) - (yesRect.width/2). So NO left = yesRect.right + gap.
+        const yesLeft = (window.innerWidth/2) - (yesRect.width/2);
+        const noLeft = yesLeft + yesRect.width + gap;
+        btnNo.style.left = noLeft + 'px';
+        btnNo.style.top = 'auto';
+        btnNo.style.bottom = '20px'; // same as bottomButtons
+        btnNo.style.transform = `scale(${noScale})`;
       }
 
-      // === helper: move No button randomly (ensuring visibility) ===
+      // Helper: move NO button randomly
       function moveNoButtonRandomly() {
-        movingNoBtn.style.position = 'fixed';
         const viewportW = window.innerWidth;
         const viewportH = window.innerHeight;
-        const btnW = movingNoBtn.offsetWidth;
-        const btnH = movingNoBtn.offsetHeight;
+        const btnW = btnNo.offsetWidth;
+        const btnH = btnNo.offsetHeight;
         const randomX = Math.min(viewportW - btnW - 10, Math.max(10, Math.random() * (viewportW - btnW - 20)));
         const randomY = Math.min(viewportH - btnH - 10, Math.max(10, Math.random() * (viewportH - btnH - 20)));
-        movingNoBtn.style.left = randomX + 'px';
-        movingNoBtn.style.top = randomY + 'px';
-        movingNoBtn.style.bottom = 'auto';
-        movingNoBtn.style.transform = `scale(${noScale})`;
+        btnNo.style.left = randomX + 'px';
+        btnNo.style.top = randomY + 'px';
+        btnNo.style.bottom = 'auto';
+        btnNo.style.transform = `scale(${noScale})`;
       }
 
-      // === open envelope animation ===
+      // Open envelope
       function openEnvelope() {
         if (currentState !== 'closed') return;
         currentState = 'opening';
@@ -336,19 +347,28 @@
         setTimeout(() => {
           envelope.classList.add('phase-letter-pop');
           currentState = 'question';
+
           // Reset scales and message
           yesScale = 1.0;
           noScale = 1.0;
           btnYes.style.transform = `scale(${yesScale})`;
-          movingNoBtn.style.transform = `scale(${noScale})`;
-          dynamicMessage.innerHTML = '&nbsp;';
+          btnNo.style.transform = `scale(${noScale})`;
+          dynamicMessage.innerHTML = ''; // clear
           noClickCount = 0;
-          // Position No button at bottom center (outside letter) and show it
-          positionNoButtonAtBottom();
+
+          // Hide any previous visibility
+          bottomButtons.classList.remove('hidden');
+          btnNo.classList.remove('hidden');
+          
+          // Position NO button at bottom next to YES
+          // Ensure YES is visible first
+          setTimeout(() => {
+            positionNoButtonAtBottom();
+          }, 50); // small delay to ensure layout
         }, 2000);
       }
 
-      // === pump animation on YES button ===
+      // Pump YES
       function pumpYesButton() {
         btnYes.style.setProperty('--yes-scale', yesScale);
         btnYes.classList.add('pump');
@@ -357,54 +377,52 @@
         }, 300);
       }
 
-      // === No button click handler (for movingNoBtn) ===
+      // NO button click handler
       function handleNoClick(e) {
         e.preventDefault();
         if (currentState !== 'question') return;
         
         noClickCount++;
         
-        // Update message based on click count
         if (noClickCount <= noMessagesSeq.length) {
           dynamicMessage.textContent = noMessagesSeq[noClickCount - 1];
         }
         
-        // Final click: hide No button, supersize Yes
         if (noClickCount >= noMessagesSeq.length) {
-          movingNoBtn.style.display = 'none';    // disappear
-          yesScale = 3.0;                         // very large Yes
+          // Final click: hide NO, supersize YES
+          btnNo.style.display = 'none';
+          yesScale = 3.0;
           btnYes.style.transform = `scale(${yesScale})`;
-          pumpYesButton();                         // final pump
-          movingNoBtn.removeEventListener('click', handleNoClick);
-          movingNoBtn.removeEventListener('touchstart', handleNoClick);
+          pumpYesButton();
+          btnNo.removeEventListener('click', handleNoClick);
+          btnNo.removeEventListener('touchstart', handleNoClick);
           return;
         }
         
-        // For clicks before final: shrink No, grow Yes, move No randomly, and pump Yes
-        yesScale = Math.min(yesScale + 0.2, 2.8);  // grow steadily, cap at 2.8
-        noScale = Math.max(noScale - 0.15, 0.2);   // shrink but stay visible (min 0.2)
+        // Grow YES, shrink NO
+        yesScale = Math.min(yesScale + 0.2, 2.8);
+        noScale = Math.max(noScale - 0.15, 0.2);
         
         btnYes.style.transform = `scale(${yesScale})`;
-        movingNoBtn.style.transform = `scale(${noScale})`;
+        btnNo.style.transform = `scale(${noScale})`;
         
-        // Pump Yes button to attract attention
         pumpYesButton();
         
-        // Move No button to a new random location
+        // Move NO randomly
         moveNoButtonRandomly();
       }
 
-      // Attach events to moving No button
-      movingNoBtn.addEventListener('click', handleNoClick);
-      movingNoBtn.addEventListener('touchstart', handleNoClick, { passive: false });
+      btnNo.addEventListener('click', handleNoClick);
+      btnNo.addEventListener('touchstart', handleNoClick, { passive: false });
 
-      // === YES button click: go to celebration ===
+      // YES button click
       btnYes.addEventListener('click', () => {
         if (currentState !== 'question') return;
         currentState = 'celebration';
 
         envelopeScene.classList.add('hidden');
-        movingNoBtn.style.display = 'none'; // hide No button
+        bottomButtons.classList.add('hidden');
+        btnNo.classList.add('hidden');
 
         loadPoemIntoOverlay();
         triggerCelebration();
