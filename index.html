@@ -50,23 +50,29 @@
 
     .flowers-bg .float-flower {
       position: absolute;
-      bottom: -60px;
-      opacity: 0.3;
-      animation: floatFlower linear infinite;
+      /* Initial position handled by JS */
+      opacity: 0.6;
+      user-select: none;
+      pointer-events: none;
+      will-change: transform;
     }
 
     @keyframes floatFlower {
       0% {
-        transform: translateY(0) rotate(0deg) scale(1);
-        opacity: 0.3;
+        transform: translateY(110vh) rotate(0deg) scale(0.8);
+        opacity: 0;
       }
 
-      50% {
-        opacity: 0.5;
+      10% {
+        opacity: 0.8;
+      }
+
+      90% {
+        opacity: 0.8;
       }
 
       100% {
-        transform: translateY(-115vh) rotate(360deg) scale(0.4);
+        transform: translateY(-10vh) rotate(360deg) scale(1);
         opacity: 0;
       }
     }
@@ -84,7 +90,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 1;
+      z-index: 5;
+      /* Increased z-index */
       transition: opacity 0.8s ease, visibility 0.8s ease;
       padding: 20px;
     }
@@ -145,7 +152,8 @@
       /* Border only on sides/bottom for visual */
       border: 1px solid #c9b896;
       border-top: none;
-      z-index: 0;
+      z-index: 1;
+      /* Was 0 */
       overflow: hidden;
     }
 
@@ -177,7 +185,8 @@
       /* Visual styling similar to flap but inverted */
       background: linear-gradient(180deg, transparent, #e8d5b5 10%, #dcc9a3);
       clip-path: polygon(0 0, 50% 55%, 100% 0, 100% 100%, 0 100%);
-      z-index: 3;
+      z-index: 4;
+      /* Was 3 */
       pointer-events: none;
       /* Let clicks pass through to letter if sticking out? No, letter pops higher */
       filter: drop-shadow(0 -2px 5px rgba(160, 120, 60, 0.1));
@@ -206,7 +215,8 @@
       height: 55%;
       background: linear-gradient(180deg, #dcc9a3, #e8d5b5, #d5c19d);
       clip-path: polygon(0 0, 50% 100%, 100% 0);
-      z-index: 4;
+      z-index: 5;
+      /* Was 4 */
       /* Above front pocket */
       transform-origin: top center;
       transition: transform 1.2s cubic-bezier(0.23, 1, 0.32, 1);
@@ -329,11 +339,13 @@
       /* Sits at bottom */
       border-radius: 4px 4px 0 0;
       z-index: 2;
-      /* BETWEEN back(0) and front-pocket(3) */
+      /* BETWEEN back(1) and front-pocket(4) */
       opacity: 0;
       pointer-events: none;
       box-shadow: 0 2px 10px rgba(80, 40, 20, 0.15);
       overflow: hidden;
+      transition: z-index 0s 0.5s;
+      /* Delay z-index switch */
     }
 
     /* Letter 1: The Valentine question */
@@ -401,6 +413,8 @@
       outline: none;
       flex-shrink: 0;
       transform-origin: center center;
+      position: relative;
+      /* Default position */
     }
 
     .btn-yes {
@@ -408,6 +422,7 @@
       color: white;
       font-size: 16px;
       padding: 12px 30px;
+      z-index: 10;
     }
 
     .btn-yes:hover {
@@ -421,6 +436,14 @@
       font-size: 13px;
       padding: 10px 22px;
       transform-origin: center center;
+      transition: all 0.2s ease;
+      /* Faster */
+      z-index: 10;
+    }
+
+    .btn-no.absolute {
+      position: fixed;
+      /* Allow it to fly anywhere */
     }
 
     .btn-no:hover {
@@ -452,7 +475,8 @@
         linear-gradient(180deg, #fffef5, #fdf8ec, #faf3e0);
       transform: translateY(10%);
       transition: all 1.2s cubic-bezier(0.23, 1, 0.32, 1);
-      z-index: 1;
+      z-index: 2;
+      /* Same as q letter */
       /* Below question initially */
     }
 
@@ -570,17 +594,19 @@
     /* Phase 3: Flap opens */
     .envelope.phase-flap-open .envelope-flap {
       transform: rotateX(180deg);
+      z-index: 1;
+      /* Drop BEHIND letter */
+      transition: transform 1.2s, z-index 0s 0.3s;
     }
 
     /* Phase 4: Letter 1 pops out */
     .envelope.phase-letter-pop .letter-question {
       opacity: 1;
-      transform: translateY(-50%);
-      /* Pop up halfway */
-      /* Pop up halfway */
+      transform: translateY(-80%);
+      /* Pop up higher (was -50%) */
       pointer-events: auto;
-      z-index: 2;
-      /* Keep at 2 (Behind Pocket 3, Above Flap 1) */
+      z-index: 6;
+      /* Go top (Above everything) */
       transition: transform 1s 0.2s cubic-bezier(0.2, 0.6, 0.3, 1);
     }
 
@@ -594,12 +620,11 @@
 
     .envelope.phase-letter2-pop .letter-poem {
       opacity: 1;
-      transform: translateY(-60%);
-      /* Moves way up */
+      transform: translateY(-85%);
+      /* Pop up higher */
       pointer-events: auto;
-      z-index: 2;
-      /* Keeps it tucked in pocket but readable over flap */
-      /* Above pocket */
+      z-index: 6;
+      /* Go top */
     }
 
     /* Pull hint (inside celebration overlay) */
@@ -1014,26 +1039,47 @@
 
     /* ═══════════════════════════════════════════════
        FLOATING FLOWERS BACKGROUND
-       All 9 flower types from the bouquet
+       One of each type, floating infinitely at different speeds
     ═══════════════════════════════════════════════ */
     const flowersBg = document.getElementById('flowersBg');
-    const flowerEmojis = ['🌷', '🌻', '🌹', '🌸', '🪻', '🌼', '🌼', '💮', '🌺'];
+    // Unique list of flowers
+    const uniqueFlowers = ['🌷', '🌻', '🌹', '🌸', '🪻', '🌼', '💮', '🌺'];
 
-    function createFloatingFlower() {
-      const flower = document.createElement('span');
-      flower.className = 'float-flower';
-      flower.textContent = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
-      flower.style.left = Math.random() * 100 + '%';
-      flower.style.fontSize = (18 + Math.random() * 22) + 'px';
-      const duration = 10 + Math.random() * 14;
-      flower.style.animationDuration = duration + 's';
-      flower.style.animationDelay = Math.random() * 4 + 's';
-      flowersBg.appendChild(flower);
-      setTimeout(() => flower.remove(), (duration + 5) * 1000);
+    function initFloatingFlowers() {
+      // Create one of each flower
+      uniqueFlowers.forEach((emoji, i) => {
+        const flower = document.createElement('span');
+        flower.className = 'float-flower';
+        flower.textContent = emoji;
+        setRandomFlowerProperties(flower);
+
+        // Add to DOM
+        flowersBg.appendChild(flower);
+
+        // When animation ends, reset properties to loop organically
+        // We use 'animationiteration' if using infinite, but to randomize pos each time
+        // it's better to listen to end and restart. However, with infinite CSS,
+        // it just loops same path. To randomize path each loop, we need JS loop.
+        // Let's use the CSS infinite linear, but set huge duration and delays.
+        // Actually best way for random positions each time is to reset node.
+
+        // Simpler approach: CSS infinite is fine, but static track.
+        // To make "all around web page", let's use a long duration and random delays.
+      });
     }
 
-    setInterval(createFloatingFlower, 1200);
-    for (let i = 0; i < 10; i++) createFloatingFlower();
+    function setRandomFlowerProperties(el) {
+      el.style.left = Math.random() * 95 + '%'; // 0-95% width
+      el.style.fontSize = (20 + Math.random() * 25) + 'px';
+      // Randomize duration
+      const duration = 15 + Math.random() * 20; // 15-35s slow float
+      el.style.animationDuration = duration + 's';
+      // Random negative delay so they appear to be already mid-flight
+      el.style.animationDelay = -(Math.random() * duration) + 's';
+    }
+
+    initFloatingFlowers();
+
 
     /* ═══════════════════════════════════════════════
        SWIPE DETECTION
@@ -1142,44 +1188,72 @@
       // Phase 4: Letter 1 pops OUT of envelope
       setTimeout(() => {
         envelope.classList.add('phase-letter-pop');
+        // Bring letter to front after it pops out
+        setTimeout(() => {
+          // Additional safety for z-index
+          letterQuestion.style.zIndex = '6';
+        }, 800);
         currentState = 'question';
       }, 2200);
     }
 
     /* ═══════════════════════════════════════════════
-       NO BUTTON LOGIC 😈❤️
+       NO BUTTON LOGIC 😈❤️ (Evasive)
     ═══════════════════════════════════════════════ */
     const noMessages = [
-      "Are you sure? 🥺",
-      "Think again… 💭",
-      "Come on, don't break my heart 🥺💔",
-      "Last chance… ⏳",
-      "Okay listen— you actually don't have a choice 😌"
+      "Wait, what?",
+      "Are you serious?",
+      "Too slow! 💨",
+      "Nope, try again!",
+      "You can't catch me! 🏃"
     ];
 
-    let yesScale = 1;
-    let noScale = 1;
+    let noHoverCount = 0;
 
-    btnNo.addEventListener('click', () => {
-      noClickCount++;
+    function moveNoButton() {
+      // Calculate random position within viewport
+      // Keep generous padding so it doesn't go offscreen
+      const maxX = window.innerWidth - btnNo.offsetWidth - 20;
+      const maxY = window.innerHeight - btnNo.offsetHeight - 20;
 
-      if (noClickCount <= noMessages.length) {
-        dynamicMessage.textContent = noMessages[noClickCount - 1];
+      const randomX = Math.max(10, Math.random() * maxX);
+      const randomY = Math.max(10, Math.random() * maxY);
+
+      // Apply fixed position class if not already there
+      if (!btnNo.classList.contains('absolute')) {
+        btnNo.classList.add('absolute');
+        // Set initial position to current rect to prevent visual jump before moving?
+        // Actually just jump immediately
       }
 
-      yesScale += 0.18;
-      noScale = Math.max(noScale - 0.15, 0.1);
+      btnNo.style.left = randomX + 'px';
+      btnNo.style.top = randomY + 'px';
 
-      btnYes.style.transform = `scale(${yesScale})`;
-      btnNo.style.transform = `scale(${noScale})`;
-      btnNo.style.opacity = Math.max(1 - noClickCount * 0.15, 0.3);
-
-      if (noClickCount >= 5) {
-        setTimeout(() => {
-          btnNo.classList.add('vanished');
-          dynamicMessage.innerHTML = "I'm sorry… you already had no choice 😏<br>Now click <strong>YES</strong> ❤️";
-        }, 400);
+      // Optional: Change text occasionally
+      noHoverCount++;
+      if (noHoverCount < 6) {
+        dynamicMessage.textContent = noMessages[Math.floor(Math.random() * noMessages.length)];
+      } else {
+        dynamicMessage.textContent = "Just click YES already... 😏";
       }
+    }
+
+    // Desktop: Hover evasion
+    btnNo.addEventListener('mouseover', () => {
+      moveNoButton();
+    });
+
+    // Mobile: Touch evasion (touchstart triggers before click)
+    btnNo.addEventListener('touchstart', (e) => {
+      e.preventDefault(); // Stop click simulation
+      moveNoButton();
+    });
+
+    // Fallback click (in case they manage to click it)
+    btnNo.addEventListener('click', (e) => {
+      e.preventDefault();
+      moveNoButton();
+      // Don't count clicks for shrinking anymore, just evade
     });
 
     /* ═══════════════════════════════════════════════
@@ -1188,6 +1262,9 @@
     btnYes.addEventListener('click', () => {
       if (currentState !== 'question') return;
       currentState = 'celebration';
+
+      // Remove the NO button entirely now
+      btnNo.style.display = 'none';
 
       // Celebration!
       triggerCelebration();
@@ -1235,6 +1312,7 @@
       celebrationOverlay.style.opacity = '0';
       setTimeout(() => {
         celebrationOverlay.classList.remove('active');
+        celebrationOverlay.style.display = 'none'; // fully remove
       }, 800);
 
       // Pop poem letter out of envelope
