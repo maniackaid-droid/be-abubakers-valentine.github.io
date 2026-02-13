@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💖 Will You Be My Valentine? 💖</title>
+  <meta name="description" content="A romantic, playful Valentine's Day invitation — made with love.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;600;700&family=Caveat:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    /* ═══════════════════════════════════════════════
+       RESET & BASE
+    ═══════════════════════════════════════════════ */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100vh;
+      overflow-x: hidden;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 30%, #f3e5f5 60%, #fff9c4 100%);
+      color: #4a2040;
+    }
+
+    /* ═══════════════════════════════════════════════
+       FLOATING FLOWERS BACKGROUND (replaces hearts)
+    ═══════════════════════════════════════════════ */
+    .flowers-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .flowers-bg .float-flower {
+      position: absolute;
+      bottom: -60px;
+      opacity: 0.3;
+      animation: floatFlower linear infinite;
+    }
+
+    @keyframes floatFlower {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 0.3;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+
+      100% {
+        transform: translateY(-115vh) rotate(360deg) scale(0.4);
+        opacity: 0;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════
+       SCENES (shared)
+    ═══════════════════════════════════════════════ */
+    .scene {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+      padding: 20px;
+    }
+
+    .scene.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* ═══════════════════════════════════════════════
+       VINTAGE ENVELOPE – Based on "Letter idea.webp"
+       Parchment/aged paper look with heart-shaped wax seal
+    ═══════════════════════════════════════════════ */
+    .envelope-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+      animation: floatEnvelope 3s ease-in-out infinite;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    @keyframes floatEnvelope {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-12px);
+      }
+    }
+
+    .envelope {
+      width: 320px;
+      height: 230px;
+      position: relative;
+      perspective: 900px;
+      filter: drop-shadow(0 8px 25px rgba(80, 40, 20, 0.3));
+    }
+
+    /* Vintage parchment envelope BACK (inside) */
+    .envelope-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(135deg,
+          #f5e6d0 0%, #efe0c8 20%, #e8d5b5 40%,
+          #f0e2cc 60%, #ece0c6 80%, #e5d4b0 100%);
+      border-radius: 6px;
+      /* Border only on sides/bottom for visual */
+      border: 1px solid #c9b896;
+      border-top: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    /* Inner pattern for back */
+    .envelope-back::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        repeating-linear-gradient(0deg,
+          transparent 0px,
+          transparent 18px,
+          rgba(160, 120, 60, 0.03) 18px,
+          rgba(160, 120, 60, 0.03) 19px);
+      z-index: 0;
+    }
+
+    /* FRONT POCKET (The folded bottom part) */
+    .envelope-front {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 65%;
+      /* Covers bottom part */
+      /* Visual styling similar to flap but inverted */
+      background: linear-gradient(180deg, transparent, #e8d5b5 10%, #dcc9a3);
+      clip-path: polygon(0 0, 50% 55%, 100% 0, 100% 100%, 0 100%);
+      z-index: 3;
+      pointer-events: none;
+      /* Let clicks pass through to letter if sticking out? No, letter pops higher */
+      filter: drop-shadow(0 -2px 5px rgba(160, 120, 60, 0.1));
+    }
+
+    /* Make the front pocket opaque/textured like paper */
+    .envelope-front::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(135deg,
+          #e5d6ba 0%, #decb9e 100%);
+      z-index: -1;
+    }
+
+    /* Envelope triangular flap */
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 55%;
+      background: linear-gradient(180deg, #dcc9a3, #e8d5b5, #d5c19d);
+      clip-path: polygon(0 0, 50% 100%, 100% 0);
+      z-index: 4;
+      /* Above front pocket */
+      transform-origin: top center;
+      transition: transform 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: inset 0 5px 15px rgba(160, 120, 60, 0.1);
+    }
+
+    /* Heart-shaped wax seal */
+    .wax-seal {
+      position: absolute;
+      top: 44%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+      z-index: 6;
+      /* Even higher */
+      transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .wax-seal-heart {
+      width: 58px;
+      height: 52px;
+      position: relative;
+      animation: sealPulse 2s ease-in-out infinite;
+    }
+
+    /* Heart shape using CSS */
+    .wax-seal-heart::before,
+    .wax-seal-heart::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 30px;
+      height: 48px;
+      border-radius: 30px 30px 0 0;
+      background: radial-gradient(circle at 40% 30%, #d32f2f, #b71c1c 50%, #8b0000);
+      box-shadow:
+        inset 0 3px 6px rgba(255, 255, 255, 0.2),
+        inset 0 -3px 6px rgba(0, 0, 0, 0.15),
+        0 4px 12px rgba(139, 0, 0, 0.5);
+    }
+
+    .wax-seal-heart::before {
+      left: 1px;
+      transform: rotate(-45deg);
+      transform-origin: bottom right;
+    }
+
+    .wax-seal-heart::after {
+      right: 1px;
+      transform: rotate(45deg);
+      transform-origin: bottom left;
+    }
+
+    /* Embossed initial on seal */
+    .wax-seal-initial {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -55%);
+      font-family: 'Dancing Script', cursive;
+      font-size: 22px;
+      font-weight: 700;
+      color: rgba(255, 220, 220, 0.7);
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 -1px 0 rgba(255, 255, 255, 0.15);
+      z-index: 6;
+    }
+
+    @keyframes sealPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.06);
+      }
+    }
+
+    /* Letter opener knife */
+    .letter-opener {
+      position: absolute;
+      top: 44%;
+      left: -70px;
+      width: 55px;
+      height: 6px;
+      z-index: 7;
+      opacity: 0;
+      transform: translate(0, -50%) rotate(-12deg);
+      pointer-events: none;
+    }
+
+    .opener-blade {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #e8e8e8, #aaa, #ccc);
+      clip-path: polygon(0 50%, 85% 0, 100% 50%, 85% 100%);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .opener-handle {
+      position: absolute;
+      left: -24px;
+      top: -5px;
+      width: 28px;
+      height: 16px;
+      background: linear-gradient(180deg, #8d6e63, #5d4037, #4e342e);
+      border-radius: 3px 0 0 3px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ── THE TWO LETTERS inside the envelope ── */
+    .letter-card {
+      position: absolute;
+      left: 5%;
+      width: 90%;
+      height: 90%;
+      /* Much taller */
+      bottom: 0;
+      /* Sits at bottom */
+      border-radius: 4px 4px 0 0;
+      z-index: 2;
+      /* BETWEEN back(0) and front-pocket(3) */
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: 0 2px 10px rgba(80, 40, 20, 0.15);
+      overflow: hidden;
+    }
+
+    /* Letter 1: The Valentine question */
+    .letter-question {
+      bottom: 0;
+      background:
+        linear-gradient(180deg, #fffef5, #fdf8ec, #faf3e0);
+      transform: translateY(10%);
+      /* Start slightly hidden down */
+      transition: all 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .letter-question-inner {
+      width: 100%;
+      height: 100%;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      /* Lined paper effect */
+      background:
+        repeating-linear-gradient(transparent 0px,
+          transparent 28px,
+          rgba(180, 160, 130, 0.15) 28px,
+          rgba(180, 160, 130, 0.15) 29px);
+    }
+
+    .letter-question-inner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 28px;
+      width: 1px;
+      height: 100%;
+      background: rgba(200, 100, 100, 0.15);
+    }
+
+    .letter-q-text {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(14px, 3.5vw, 20px);
+      font-weight: 700;
+      color: #5d3a1a;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .letter-q-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 5px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 50px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      outline: none;
+      flex-shrink: 0;
+      transform-origin: center center;
+    }
+
+    .btn-yes {
+      background: linear-gradient(135deg, #e91e63, #f06292);
+      color: white;
+      font-size: 16px;
+      padding: 12px 30px;
+    }
+
+    .btn-yes:hover {
+      background: linear-gradient(135deg, #c2185b, #e91e63);
+      box-shadow: 0 6px 25px rgba(233, 30, 99, 0.4);
+    }
+
+    .btn-no {
+      background: linear-gradient(135deg, #9e9e9e, #bdbdbd);
+      color: white;
+      font-size: 13px;
+      padding: 10px 22px;
+      transform-origin: center center;
+    }
+
+    .btn-no:hover {
+      background: linear-gradient(135deg, #757575, #9e9e9e);
+    }
+
+    .btn-no.vanished {
+      transform: scale(0) !important;
+      opacity: 0 !important;
+      pointer-events: none;
+      width: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      overflow: hidden;
+    }
+
+    .letter-dynamic-msg {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(12px, 2.5vw, 16px);
+      color: #ad1457;
+      min-height: 22px;
+      text-align: center;
+    }
+
+    /* Letter 2: The poem */
+    .letter-poem {
+      bottom: 0;
+      background:
+        linear-gradient(180deg, #fffef5, #fdf8ec, #faf3e0);
+      transform: translateY(10%);
+      transition: all 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+      z-index: 1;
+      /* Below question initially */
+    }
+
+    .letter-poem-inner {
+      width: 100%;
+      height: 100%;
+      padding: 15px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 5px;
+      overflow-y: auto;
+      /* Hide scrollbar for cleaner look if possible, but keep functionality */
+      scrollbar-width: none;
+      /* Firefox */
+      background:
+        repeating-linear-gradient(transparent 0px,
+          transparent 28px,
+          rgba(180, 160, 130, 0.15) 28px,
+          rgba(180, 160, 130, 0.15) 29px);
+    }
+
+    .letter-poem-inner::-webkit-scrollbar {
+      display: none;
+    }
+
+    .letter-poem-inner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 28px;
+      width: 1px;
+      height: 100%;
+      background: rgba(200, 100, 100, 0.15);
+    }
+
+    .poem-header {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(16px, 3vw, 22px);
+      color: #c2185b;
+      text-align: center;
+    }
+
+    .poem-text {
+      font-family: 'Caveat', cursive;
+      font-size: clamp(12px, 2.2vw, 16px);
+      /* Slightly smaller max */
+      color: #5d3a1a;
+      line-height: 1.45;
+      /* Tighter line height */
+      white-space: pre-line;
+      text-align: center;
+    }
+
+    /* ── OPENING ANIMATION PHASES ── */
+
+    /* Phase 1: Knife slices across */
+    .envelope.phase-knife .letter-opener {
+      opacity: 1;
+      animation: knifeSlice 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes knifeSlice {
+      0% {
+        left: -70px;
+        opacity: 0;
+        transform: translate(0, -50%) rotate(-12deg);
+      }
+
+      15% {
+        opacity: 1;
+        transform: translate(0, -50%) rotate(-5deg);
+      }
+
+      50% {
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(0deg);
+      }
+
+      70% {
+        left: 110%;
+        transform: translate(0, -50%) rotate(5deg);
+      }
+
+      100% {
+        left: 125%;
+        opacity: 0;
+        transform: translate(0, -50%) rotate(12deg);
+      }
+    }
+
+    /* Phase 2: Seal cracks */
+    .envelope.phase-seal-break .wax-seal {
+      animation: sealCrack 0.8s ease forwards;
+    }
+
+    @keyframes sealCrack {
+      0% {
+        transform: translate(-50%, -50%) scale(1) rotate(0);
+        opacity: 1;
+      }
+
+      30% {
+        transform: translate(-50%, -50%) scale(1.3) rotate(-8deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(-50%, 120%) scale(0.2) rotate(60deg);
+        opacity: 0;
+      }
+    }
+
+    /* Phase 3: Flap opens */
+    .envelope.phase-flap-open .envelope-flap {
+      transform: rotateX(180deg);
+    }
+
+    /* Phase 4: Letter 1 pops out */
+    .envelope.phase-letter-pop .letter-question {
+      opacity: 1;
+      transform: translateY(-50%);
+      /* Pop up halfway */
+      /* Pop up halfway */
+      pointer-events: auto;
+      z-index: 2;
+      /* Keep at 2 (Behind Pocket 3, Above Flap 1) */
+      transition: transform 1s 0.2s cubic-bezier(0.2, 0.6, 0.3, 1);
+    }
+
+    /* Phase 5 (after YES): Letter 1 goes away, letter 2 pops out */
+    .envelope.phase-letter2-pop .letter-question {
+      opacity: 0;
+      transform: translateY(-200px) scale(0.7);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .envelope.phase-letter2-pop .letter-poem {
+      opacity: 1;
+      transform: translateY(-60%);
+      /* Moves way up */
+      pointer-events: auto;
+      z-index: 2;
+      /* Keeps it tucked in pocket but readable over flap */
+      /* Above pocket */
+    }
+
+    /* Pull hint (inside celebration overlay) */
+    .pull-hint {
+      font-family: 'Caveat', cursive;
+      font-size: 22px;
+      color: #8d6e63;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      text-align: center;
+      margin-top: 20px;
+      cursor: pointer;
+      z-index: 20;
+      padding: 12px 24px;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(139, 110, 99, 0.2);
+      pointer-events: none;
+    }
+
+    .pull-hint.visible {
+      opacity: 1;
+      pointer-events: auto;
+      animation: pullBounce 2s ease-in-out infinite;
+    }
+
+    @keyframes pullBounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+        opacity: 0.7;
+      }
+
+      50% {
+        transform: translateY(-8px);
+        opacity: 1;
+      }
+    }
+
+    .swipe-hint {
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px;
+      font-weight: 300;
+      color: #8d6e63;
+      animation: fadeInOut 2.5s ease-in-out infinite;
+      text-align: center;
+    }
+
+    @keyframes fadeInOut {
+
+      0%,
+      100% {
+        opacity: 0.5;
+      }
+
+      50% {
+        opacity: 1;
+      }
+    }
+
+    .swipe-arrow {
+      font-size: 28px;
+      animation: swipeArrow 1.5s ease-in-out infinite;
+      display: inline-block;
+    }
+
+    @keyframes swipeArrow {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      50% {
+        transform: translateX(10px);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════
+       CELEBRATION OVERLAY (appears on top of envelope scene)
+    ═══════════════════════════════════════════════ */
+    .celebration-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 30px;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+
+    .celebration-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .celebration-title {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(28px, 6vw, 56px);
+      font-weight: 700;
+      color: #c2185b;
+      text-shadow: 0 3px 15px rgba(194, 24, 91, 0.3);
+      animation: celebratePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes celebratePulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    .celebration-subtitle {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(16px, 3.5vw, 28px);
+      color: #ad1457;
+      margin-top: 5px;
+    }
+
+    /* Bouquet in celebration */
+    .bouquet {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 10px;
+      animation: bouquetAppear 1s ease forwards;
+    }
+
+    .bouquet-flower {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      animation: flowerPop 0.6s ease forwards;
+      opacity: 0;
+    }
+
+    .bouquet-flower .flower-icon {
+      font-size: clamp(28px, 5vw, 44px);
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    @keyframes flowerPop {
+      from {
+        opacity: 0;
+        transform: scale(0) rotate(-20deg);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+    }
+
+    @keyframes bouquetAppear {
+      from {
+        opacity: 0;
+        transform: scale(0) rotate(-20deg);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════
+       SPARKLE OVERLAY
+    ═══════════════════════════════════════════════ */
+    .sparkle-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .sparkle-overlay .sparkle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle 2s ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+
+      0%,
+      100% {
+        opacity: 0;
+        transform: scale(0);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════ */
+    @media (max-width: 480px) {
+      .envelope {
+        width: 260px;
+        height: 190px;
+      }
+
+      .wax-seal-heart {
+        width: 46px;
+        height: 42px;
+      }
+
+      .wax-seal-heart::before,
+      .wax-seal-heart::after {
+        width: 24px;
+        height: 38px;
+        border-radius: 24px 24px 0 0;
+      }
+
+      .wax-seal-initial {
+        font-size: 18px;
+      }
+
+      .letter-card {
+        height: 60%;
+      }
+
+      .btn-yes {
+        padding: 10px 24px;
+        font-size: 14px;
+      }
+
+      .btn-no {
+        padding: 8px 18px;
+        font-size: 12px;
+      }
+
+      .letter-q-text {
+        font-size: clamp(12px, 3vw, 16px);
+      }
+
+      .envelope.phase-letter-pop .letter-question,
+      .envelope.phase-letter2-pop .letter-poem {
+        transform: translateY(-70px);
+      }
+    }
+
+    @media (min-width: 768px) {
+      .envelope {
+        width: 380px;
+        height: 275px;
+      }
+
+      .wax-seal-heart {
+        width: 66px;
+        height: 58px;
+      }
+
+      .wax-seal-heart::before,
+      .wax-seal-heart::after {
+        width: 34px;
+        height: 54px;
+        border-radius: 34px 34px 0 0;
+      }
+
+      .wax-seal-initial {
+        font-size: 26px;
+      }
+
+      .envelope.phase-letter-pop .letter-question,
+      .envelope.phase-letter2-pop .letter-poem {
+        transform: translateY(-70%);
+        /* Higher on desktop */
+      }
+
+      .btn-yes {
+        font-size: 18px;
+        padding: 14px 36px;
+      }
+
+      .btn-no {
+        font-size: 14px;
+        padding: 11px 26px;
+      }
+    }
+
+    /* Flap z-index trick: When letter pops, flap goes BEHIND letter */
+    .envelope.phase-letter-pop .envelope-flap,
+    .envelope.phase-letter2-pop .envelope-flap {
+      z-index: 1;
+      transition: z-index 0s 0.1s;
+      /* Instant switch after slight delay */
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════ Floating Flowers Background ═══════ -->
+  <div class="flowers-bg" id="flowersBg"></div>
+
+  <!-- ═══════ MAIN SCENE: Envelope with letters ═══════ -->
+  <div class="scene" id="envelopeScene">
+    <div class="envelope-wrapper" id="envelopeWrapper">
+      <div class="envelope" id="envelope">
+        <div class="envelope-back"></div>
+
+        <!-- FLAP is on top -->
+        <div class="envelope-flap"></div>
+
+        <!-- POCKET FRONT is layer 3 -->
+        <div class="envelope-front"></div>
+
+        <!-- Heart-shaped wax seal -->
+        <div class="wax-seal">
+          <div class="wax-seal-heart"></div>
+          <span class="wax-seal-initial">S</span>
+        </div>
+
+        <!-- Letter opener knife -->
+        <div class="letter-opener">
+          <div class="opener-handle"></div>
+          <div class="opener-blade"></div>
+        </div>
+
+        <!-- LETTER 1: Valentine question (pops out first) -->
+        <div class="letter-card letter-question" id="letterQuestion">
+          <div class="letter-question-inner">
+            <div class="letter-q-text">
+              Will you be<br>
+              Syed Abubaker Ahmed's<br>
+              Valentine for 2026<br>
+              and forever? 💕
+            </div>
+            <div class="letter-dynamic-msg" id="dynamicMessage">&nbsp;</div>
+            <div class="letter-q-buttons">
+              <button class="btn btn-yes" id="btnYes">💖 YES</button>
+              <button class="btn btn-no" id="btnNo">💔 NO</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- LETTER 2: Poem (pops out after YES) -->
+        <div class="letter-card letter-poem" id="letterPoem">
+          <div class="letter-poem-inner">
+            <p class="poem-header">💌 A Letter For You</p>
+            <p class="poem-text" id="poemText">Loading...</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="swipe-hint" id="swipeHint">
+        Swipe to open <span class="swipe-arrow">👉</span>
+      </p>
+
+    </div>
+  </div>
+
+  <!-- ═══════ Celebration overlay (shows above envelope) ═══════ -->
+  <div class="celebration-overlay" id="celebrationOverlay">
+    <h1 class="celebration-title">She said YES 💖</h1>
+    <p class="celebration-subtitle">Congratulations to us ✨</p>
+    <div class="bouquet" id="bouquet"></div>
+    <p class="pull-hint" id="pullHint">
+      Pull the next letter out ↑ 💌
+    </p>
+  </div>
+
+  <!-- ═══════ Sparkle overlay ═══════ -->
+  <div class="sparkle-overlay hidden" id="sparkleOverlay"></div>
+
+  <script>
+    /* ═══════════════════════════════════════════════
+       STATE & ELEMENTS
+    ═══════════════════════════════════════════════ */
+    // States: closed → opening → question → celebration → poem
+    let currentState = 'closed';
+    let noClickCount = 0;
+
+    const envelopeScene = document.getElementById('envelopeScene');
+    const envelope = document.getElementById('envelope');
+    const envelopeWrapper = document.getElementById('envelopeWrapper');
+    const letterQuestion = document.getElementById('letterQuestion');
+    const letterPoem = document.getElementById('letterPoem');
+    const btnYes = document.getElementById('btnYes');
+    const btnNo = document.getElementById('btnNo');
+    const dynamicMessage = document.getElementById('dynamicMessage');
+    const poemText = document.getElementById('poemText');
+    const sparkleOverlay = document.getElementById('sparkleOverlay');
+    const celebrationOverlay = document.getElementById('celebrationOverlay');
+    const swipeHint = document.getElementById('swipeHint');
+    const pullHint = document.getElementById('pullHint');
+
+    /* ═══════════════════════════════════════════════
+       FLOATING FLOWERS BACKGROUND
+       All 9 flower types from the bouquet
+    ═══════════════════════════════════════════════ */
+    const flowersBg = document.getElementById('flowersBg');
+    const flowerEmojis = ['🌷', '🌻', '🌹', '🌸', '🪻', '🌼', '🌼', '💮', '🌺'];
+
+    function createFloatingFlower() {
+      const flower = document.createElement('span');
+      flower.className = 'float-flower';
+      flower.textContent = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
+      flower.style.left = Math.random() * 100 + '%';
+      flower.style.fontSize = (18 + Math.random() * 22) + 'px';
+      const duration = 10 + Math.random() * 14;
+      flower.style.animationDuration = duration + 's';
+      flower.style.animationDelay = Math.random() * 4 + 's';
+      flowersBg.appendChild(flower);
+      setTimeout(() => flower.remove(), (duration + 5) * 1000);
+    }
+
+    setInterval(createFloatingFlower, 1200);
+    for (let i = 0; i < 10; i++) createFloatingFlower();
+
+    /* ═══════════════════════════════════════════════
+       SWIPE DETECTION
+    ═══════════════════════════════════════════════ */
+    let swipeStartX = 0;
+    let swipeStartY = 0;
+    let isSwiping = false;
+
+    function handleSwipeStart(x, y) {
+      if (currentState === 'closed') {
+        swipeStartX = x;
+        swipeStartY = y;
+        isSwiping = true;
+        envelopeWrapper.style.cursor = 'grabbing';
+      } else if (currentState === 'celebration') {
+        // Swipe/pull to get poem letter
+        swipeStartX = x;
+        swipeStartY = y;
+        isSwiping = true;
+      }
+    }
+
+    function handleSwipeEnd(x, y) {
+      if (!isSwiping) return;
+      isSwiping = false;
+      envelopeWrapper.style.cursor = 'grab';
+
+      const dx = x - swipeStartX;
+      const dy = y - swipeStartY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (currentState === 'closed' && distance > 60) {
+        openEnvelope();
+      } else if (currentState === 'celebration' && distance > 40) {
+        showPoemLetter();
+      }
+    }
+
+    envelopeWrapper.addEventListener('touchstart', (e) => {
+      handleSwipeStart(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+
+    envelopeWrapper.addEventListener('touchend', (e) => {
+      handleSwipeEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+    }, { passive: true });
+
+    envelopeWrapper.addEventListener('mousedown', (e) => {
+      handleSwipeStart(e.clientX, e.clientY);
+    });
+
+    document.addEventListener('mouseup', (e) => {
+      handleSwipeEnd(e.clientX, e.clientY);
+    });
+
+    // Document-level listeners for celebration state
+    // (overlay blocks envelopeWrapper events)
+    document.addEventListener('mousedown', (e) => {
+      if (currentState === 'celebration') {
+        swipeStartX = e.clientX;
+        swipeStartY = e.clientY;
+        isSwiping = true;
+      }
+    });
+    document.addEventListener('touchstart', (e) => {
+      if (currentState === 'celebration') {
+        swipeStartX = e.touches[0].clientX;
+        swipeStartY = e.touches[0].clientY;
+        isSwiping = true;
+      }
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      if (currentState === 'celebration') {
+        handleSwipeEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+      }
+    }, { passive: true });
+
+    /* ═══════════════════════════════════════════════
+       ENVELOPE OPEN – Cinematic multi-phase animation
+    ═══════════════════════════════════════════════ */
+    function openEnvelope() {
+      if (currentState !== 'closed') return;
+      currentState = 'opening';
+
+      // Stop float
+      envelopeWrapper.style.animation = 'none';
+      // Hide swipe hint completely
+      swipeHint.style.opacity = '0';
+      swipeHint.style.display = 'none';
+
+      // Play a subtle paper/crack sound
+      playOpenSound();
+
+      // Phase 1: Knife slides across
+      envelope.classList.add('phase-knife');
+
+      // Phase 2: Seal breaks
+      setTimeout(() => {
+        envelope.classList.add('phase-seal-break');
+      }, 600);
+
+      // Phase 3: Flap opens
+      setTimeout(() => {
+        envelope.classList.add('phase-flap-open');
+      }, 1300);
+
+      // Phase 4: Letter 1 pops OUT of envelope
+      setTimeout(() => {
+        envelope.classList.add('phase-letter-pop');
+        currentState = 'question';
+      }, 2200);
+    }
+
+    /* ═══════════════════════════════════════════════
+       NO BUTTON LOGIC 😈❤️
+    ═══════════════════════════════════════════════ */
+    const noMessages = [
+      "Are you sure? 🥺",
+      "Think again… 💭",
+      "Come on, don't break my heart 🥺💔",
+      "Last chance… ⏳",
+      "Okay listen— you actually don't have a choice 😌"
+    ];
+
+    let yesScale = 1;
+    let noScale = 1;
+
+    btnNo.addEventListener('click', () => {
+      noClickCount++;
+
+      if (noClickCount <= noMessages.length) {
+        dynamicMessage.textContent = noMessages[noClickCount - 1];
+      }
+
+      yesScale += 0.18;
+      noScale = Math.max(noScale - 0.15, 0.1);
+
+      btnYes.style.transform = `scale(${yesScale})`;
+      btnNo.style.transform = `scale(${noScale})`;
+      btnNo.style.opacity = Math.max(1 - noClickCount * 0.15, 0.3);
+
+      if (noClickCount >= 5) {
+        setTimeout(() => {
+          btnNo.classList.add('vanished');
+          dynamicMessage.innerHTML = "I'm sorry… you already had no choice 😏<br>Now click <strong>YES</strong> ❤️";
+        }, 400);
+      }
+    });
+
+    /* ═══════════════════════════════════════════════
+       YES BUTTON – Celebration + prompt for 2nd letter
+    ═══════════════════════════════════════════════ */
+    btnYes.addEventListener('click', () => {
+      if (currentState !== 'question') return;
+      currentState = 'celebration';
+
+      // Celebration!
+      triggerCelebration();
+
+      // After a beat, show the "pull next letter" hint
+      setTimeout(() => {
+        pullHint.classList.add('visible');
+      }, 2500);
+    });
+
+    function triggerCelebration() {
+      // Show celebration overlay on top
+      celebrationOverlay.classList.add('active');
+
+      // Build bouquet
+      buildBouquet();
+
+      // Fire confetti
+      fireConfetti();
+
+      // Play cheering sound
+      playCelebrationSound();
+
+      // Show sparkles
+      showSparkles();
+
+      // Change bg
+      document.body.style.background =
+        'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 25%, #f3e5f5 50%, #e8eaf6 75%, #fff9c4 100%)';
+
+      // Pre-load poem
+      loadPoem();
+    }
+
+    /* ═══════════════════════════════════════════════
+       SHOW POEM LETTER (pulled from envelope)
+    ═══════════════════════════════════════════════ */
+    function showPoemLetter() {
+      if (currentState !== 'celebration') return;
+      currentState = 'poem';
+
+      pullHint.classList.remove('visible');
+
+      // Fade out celebration overlay
+      celebrationOverlay.style.opacity = '0';
+      setTimeout(() => {
+        celebrationOverlay.classList.remove('active');
+      }, 800);
+
+      // Pop poem letter out of envelope
+      envelope.classList.add('phase-letter2-pop');
+    }
+
+    /* Also allow clicking the pull hint */
+    pullHint.addEventListener('click', () => {
+      showPoemLetter();
+    });
+
+    /* ═══════════════════════════════════════════════
+       BUILD BOUQUET (9 flowers, no labels)
+    ═══════════════════════════════════════════════ */
+    function buildBouquet() {
+      const bouquet = document.getElementById('bouquet');
+      const flowers = ['🌷', '🌻', '🌹', '🌸', '🪻', '🌼', '🌼', '💮', '🌺'];
+      flowers.forEach((emoji, i) => {
+        const f = document.createElement('div');
+        f.className = 'bouquet-flower';
+        f.style.animationDelay = (0.1 + i * 0.1) + 's';
+        f.style.animationFillMode = 'forwards';
+        f.innerHTML = `<span class="flower-icon">${emoji}</span>`;
+        bouquet.appendChild(f);
+      });
+      // Ribbon
+      const ribbon = document.createElement('div');
+      ribbon.textContent = '🎀';
+      ribbon.style.fontSize = 'clamp(24px, 4vw, 36px)';
+      ribbon.style.marginTop = '-4px';
+      bouquet.appendChild(ribbon);
+    }
+
+    /* ═══════════════════════════════════════════════
+       CONFETTI 🎊
+    ═══════════════════════════════════════════════ */
+    function fireConfetti() {
+      const defaults = {
+        spread: 360, ticks: 100, gravity: 0.5, decay: 0.94, startVelocity: 30,
+        colors: ['#e91e63', '#f48fb1', '#ff80ab', '#ff4081', '#f50057', '#c2185b', '#fff', '#ffeb3b']
+      };
+
+      function burst() {
+        confetti({
+          ...defaults, particleCount: 40, scalar: 1.2,
+          shapes: ['circle', 'square'],
+          origin: { x: Math.random(), y: Math.random() * 0.4 }
+        });
+      }
+
+      burst();
+      setTimeout(burst, 250);
+      setTimeout(burst, 500);
+      setTimeout(burst, 1000);
+      setTimeout(burst, 1500);
+      setTimeout(burst, 2500);
+
+      setTimeout(() => {
+        confetti({
+          particleCount: 80, spread: 120,
+          origin: { y: 0.6 },
+          colors: ['#e91e63', '#f06292', '#f8bbd0', '#9c27b0', '#ffeb3b'],
+          shapes: ['circle'], scalar: 2, gravity: 0.8
+        });
+      }, 2000);
+    }
+
+    /* ═══════════════════════════════════════════════
+       OPENING SOUND (paper/wax crack)
+    ═══════════════════════════════════════════════ */
+    function playOpenSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+
+        // Paper tearing / wax crack: short noise burst
+        const bufLen = ctx.sampleRate * 0.4;
+        const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < bufLen; i++) {
+          const t = i / ctx.sampleRate;
+          const env = Math.exp(-t * 12);
+          data[i] = (Math.random() * 2 - 1) * env * 0.3;
+        }
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.value = 2000;
+        const gain = ctx.createGain();
+        gain.gain.value = 0.25;
+        src.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        src.start(now + 0.5); // Sync with knife hitting seal
+      } catch (e) { }
+    }
+
+    /* ═══════════════════════════════════════════════
+       CELEBRATION SOUND 🎶 – Crowd cheering
+    ═══════════════════════════════════════════════ */
+    function playCelebrationSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+
+        // ── 1) CROWD ROAR ──
+        const cheerDur = 3.5;
+        const bufSize = ctx.sampleRate * cheerDur;
+        const noiseBuf = ctx.createBuffer(2, bufSize, ctx.sampleRate);
+        for (let ch = 0; ch < 2; ch++) {
+          const d = noiseBuf.getChannelData(ch);
+          for (let i = 0; i < bufSize; i++) {
+            const t = i / ctx.sampleRate;
+            const env = Math.min(t * 8, 1) * Math.max(1 - (t - 1.5) / 2, 0);
+            d[i] = (Math.random() * 2 - 1) * env * 0.6;
+            d[i] *= 1 + 0.3 * Math.sin(2 * Math.PI * 3 * t);
+          }
+        }
+        const nSrc = ctx.createBufferSource();
+        nSrc.buffer = noiseBuf;
+        const bpf = ctx.createBiquadFilter();
+        bpf.type = 'bandpass'; bpf.frequency.value = 1200; bpf.Q.value = 0.8;
+        const lpf = ctx.createBiquadFilter();
+        lpf.type = 'lowpass'; lpf.frequency.value = 3000;
+        const nGain = ctx.createGain();
+        nGain.gain.setValueAtTime(0, now);
+        nGain.gain.linearRampToValueAtTime(0.35, now + 0.15);
+        nGain.gain.setValueAtTime(0.35, now + 1.5);
+        nGain.gain.exponentialRampToValueAtTime(0.01, now + cheerDur);
+        nSrc.connect(bpf); bpf.connect(lpf); lpf.connect(nGain); nGain.connect(ctx.destination);
+        nSrc.start(now); nSrc.stop(now + cheerDur);
+
+        // ── 2) WHISTLE ──
+        const w = ctx.createOscillator();
+        w.type = 'sine';
+        w.frequency.setValueAtTime(800, now + 0.1);
+        w.frequency.exponentialRampToValueAtTime(2400, now + 0.8);
+        w.frequency.exponentialRampToValueAtTime(2000, now + 1.2);
+        const wG = ctx.createGain();
+        wG.gain.setValueAtTime(0, now);
+        wG.gain.linearRampToValueAtTime(0.08, now + 0.2);
+        wG.gain.exponentialRampToValueAtTime(0.01, now + 1.3);
+        w.connect(wG); wG.connect(ctx.destination);
+        w.start(now + 0.1); w.stop(now + 1.4);
+
+        // ── 3) FANFARE JINGLE ──
+        function note(freq, start, dur, vol = 0.12) {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = 'triangle';
+          o.frequency.setValueAtTime(freq, now + start);
+          g.gain.setValueAtTime(vol, now + start);
+          g.gain.exponentialRampToValueAtTime(0.005, now + start + dur);
+          o.connect(g); g.connect(ctx.destination);
+          o.start(now + start); o.stop(now + start + dur);
+        }
+        note(523.25, 0.05, 0.2);
+        note(659.25, 0.2, 0.2);
+        note(783.99, 0.35, 0.2);
+        note(1046.50, 0.5, 0.4);
+        note(783.99, 0.95, 0.15);
+        note(880.00, 1.1, 0.15);
+        note(1046.50, 1.3, 0.6);
+
+        // Second cheer wave
+        setTimeout(() => {
+          try {
+            const b2 = ctx.createBuffer(2, ctx.sampleRate * 2, ctx.sampleRate);
+            for (let ch = 0; ch < 2; ch++) {
+              const d = b2.getChannelData(ch);
+              for (let i = 0; i < d.length; i++) {
+                const t = i / ctx.sampleRate;
+                const env = Math.min(t * 5, 1) * Math.max(1 - t / 1.5, 0);
+                d[i] = (Math.random() * 2 - 1) * env * 0.3;
+              }
+            }
+            const s2 = ctx.createBufferSource(); s2.buffer = b2;
+            const f2 = ctx.createBiquadFilter(); f2.type = 'bandpass'; f2.frequency.value = 1500; f2.Q.value = 0.6;
+            const g2 = ctx.createGain(); g2.gain.value = 0.2;
+            g2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2);
+            s2.connect(f2); f2.connect(g2); g2.connect(ctx.destination);
+            s2.start(); s2.stop(ctx.currentTime + 2);
+          } catch (e) { }
+        }, 1500);
+
+      } catch (e) {
+        console.log('Audio not available:', e);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════
+       SPARKLES ✨
+    ═══════════════════════════════════════════════ */
+    function showSparkles() {
+      sparkleOverlay.classList.remove('hidden');
+      for (let i = 0; i < 30; i++) {
+        const s = document.createElement('div');
+        s.className = 'sparkle';
+        s.style.left = Math.random() * 100 + '%';
+        s.style.top = Math.random() * 100 + '%';
+        s.style.animationDelay = Math.random() * 3 + 's';
+        s.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+        s.style.width = (3 + Math.random() * 4) + 'px';
+        s.style.height = s.style.width;
+        s.style.background = ['#fff', '#f8bbd0', '#ffeb3b', '#e1bee7'][Math.floor(Math.random() * 4)];
+        sparkleOverlay.appendChild(s);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════
+       LOAD POEM 📄
+    ═══════════════════════════════════════════════ */
+    const fallbackPoem =
+      "Every moment with you is a gift,\n" +
+      "Every smile of yours, my heart does lift.\n" +
+      "In this world so vast and wide,\n" +
+      "You're forever my love, my pride.\n\n" +
+      "— With all my love, always and forever 💖";
+
+    function loadPoem() {
+      fetch('poem.txt')
+        .then(r => {
+          if (!r.ok) throw new Error('Not found');
+          return r.text();
+        })
+        .then(text => { poemText.textContent = text; })
+        .catch(() => {
+          poemText.textContent = fallbackPoem;
+        });
+    }
+
+    // Pre-load the poem immediately so it's ready
+    loadPoem();
+  </script>
+</body>
+
+</html>
